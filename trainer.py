@@ -10,6 +10,8 @@ import data.gaze_data as gaze_data
 import data.hand_data as hand_data
 from utils import imwrite, imread, img_tile
 
+from functools import reduce  # added because the func reduce moved
+
 class Trainer(object):
   def __init__(self, config, rng):
     self.config = config
