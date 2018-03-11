@@ -6,11 +6,13 @@ from tensorflow.contrib.framework.python.ops import arg_scope
 
 from model import Model
 from buffer import Buffer
+import data.DataGen_hands_data as hands
 import data.gaze_data as gaze_data
-import data.hand_data as hand_data
 from utils import imwrite, imread, img_tile
 
 from functools import reduce  # added because the func reduce moved
+
+import cv2
 
 class Trainer(object):
   def __init__(self, config, rng):
@@ -30,10 +32,9 @@ class Trainer(object):
     self.initial_K_g = config.initial_K_g
     self.checkpoint_secs = config.checkpoint_secs
 
-    DataLoader = {
-        'gaze': gaze_data.DataLoader,
-        'hand': hand_data.DataLoader,
-    }[config.data_set]
+    # config.data_set = 'hands'
+    # DataLoader = { 'hands': hands.DataLoader}[config.data_set]
+    DataLoader = {'gaze': gaze_data.DataLoader}[config.data_set]  #  DELETE LATER
     self.data_loader = DataLoader(config, rng=self.rng)
 
     self.model = Model(config, self.data_loader)
@@ -84,6 +85,9 @@ class Trainer(object):
         [imread(path) for path in \
             self.data_loader.synthetic_data_paths[idxs]]
     ), -1)
+
+    tmp = self.data_loader.next()
+    cv2.imshow(tmp[0])
 
     def train_refiner(push_buffer=False):
       feed_dict = {
