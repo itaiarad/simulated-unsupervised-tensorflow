@@ -32,8 +32,8 @@ def maybe_preprocess(config, data_path, sample_path=None):
     max_synthetic_num = config.max_synthetic_num
   
   # Real hands dataset
-  real_imgs_dir = os.path.join(data_path, 'real_hand_images')
-  synthetic_img_dir = os.path.join(data_path, 'synthetic_images')
+  real_imgs_dir = os.path.join(data_path, config.real_image_dir)
+  synthetic_img_dir = os.path.join(data_path, config.synthetic_image_dir)
   synthetic_grayscale_path = synthetic_img_dir + '_grayscale'
   npz_path = os.path.join(data_path, DATA_FNAME)
 
@@ -41,17 +41,9 @@ def maybe_preprocess(config, data_path, sample_path=None):
     real_images_paths = os.listdir(real_imgs_dir)
 
     print("[*] Preprocessing real `DG hands` data...")
-
     real_images = []
-    for img in tqdm(real_images_paths):
-      img_path = os.path.join(real_imgs_dir, img)
-      img_data = cv2.imread(img_path)
-      if config.input_channel == 1:
-        img_data = cv2.cvtColor(img_data, cv2.COLOR_BGR2GRAY)
-      else:
-        img_data = cv2.cvtColor(img_data, cv2.COLOR_BGR2RGB)
-      img_data = cv2.resize(img_data, (640, 480))  # resize and normalize values
-      real_images.append(img_data)
+    for img_path in real_images_paths:
+        real_images.append(os.path.join(real_imgs_dir, img_path))
 
     print("\n[*] Finished preprocessing real `DG hands` data.")
 
@@ -65,7 +57,7 @@ def maybe_preprocess(config, data_path, sample_path=None):
       img_path = os.path.join(synthetic_img_dir, img)
       new_img_path = os.path.join(synthetic_grayscale_path, img.replace('.png', '_grayscale.png'))
       img_data = cv2.imread(img_path)
-      img_data = cv2.resize(img_data, (640, 480))
+      img_data = cv2.resize(img_data, (config.input_width, config.input_height))
       save_array_to_grayscale_image(img_data, new_img_path)
     print("\n[*] Finished preprocessing synthetic `DG hands` data.")
 
@@ -83,21 +75,17 @@ def load(config, data_path, sample_path, rng):
   if not os.path.exists(sample_path):
     os.makedirs(sample_path)
 
-
-
-  # print("[*] Save samples images in {}".format(data_path))
-  # random_idxs = rng.choice(len(real_data), 100)
-  # for idx, random_idx in enumerate(random_idxs):
-  #   image_path = os.path.join(sample_path, "real_{}.png".format(idx))
-  #   imwrite(image_path, real_data[random_idx])
-
   return real_data, synthetic_imgs_dir
 
 class DataLoader(object):
   def __init__(self, config, rng=None):
     self.rng = np.random.RandomState(1) if rng is None else rng
 
-    self.data_path = os.path.join(config.data_dir, 'hands')
+    self.input_channel = config.input_channel
+    self.input_height = config.input_height
+    self.input_width = config.input_width
+
+    self.data_path = os.path.join(config.data_dir, config.data_set)
     self.sample_path = os.path.join(self.data_path, config.sample_dir)
     self.batch_size = config.batch_size
     self.debug = config.debug
@@ -138,7 +126,15 @@ class DataLoader(object):
 
     x = self.real_data[self.real_p : self.real_p + n]
     self.real_p += self.batch_size
-
-    return x
+    output_imgs = []
+    for img_path in x:
+      img_data = cv2.imread(img_path)
+      if self.input_channel == 1:
+        img_data = cv2.cvtColor(img_data, cv2.COLOR_BGR2GRAY)
+      else:
+        img_data = cv2.cvtColor(img_data, cv2.COLOR_BGR2RGB)
+      img_data = cv2.resize(img_data, (self.input_width, self.input_height))  # resize and normalize values
+      output_imgs.append(img_data)
+    return output_imgs
 
   next = __next__

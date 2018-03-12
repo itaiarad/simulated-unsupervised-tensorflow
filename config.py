@@ -20,14 +20,20 @@ net_arg.add_argument('--channel_dims', type=eval, default='[]', help='')
 
 # Data
 data_arg = add_argument_group('Data')
-data_arg.add_argument('--data_set', type=str, default='gaze')
+# data_arg.add_argument('--data_set', type=str, default='gaze')
+data_arg.add_argument('--data_set', type=str, default='hands')
 data_arg.add_argument('--data_dir', type=str, default='data')
-data_arg.add_argument('--input_height', type=int, default=35)
-data_arg.add_argument('--input_width', type=int, default=55)
+# data_arg.add_argument('--input_height', type=int, default=35)
+data_arg.add_argument('--input_height', type=int, default=240)
+# data_arg.add_argument('--input_width', type=int, default=55)
+data_arg.add_argument('--input_width', type=int, default=320)
 data_arg.add_argument('--input_channel', type=int, default=1)
 data_arg.add_argument('--max_synthetic_num', type=int, default=-1)
-data_arg.add_argument('--real_image_dir', type=str, default="MPIIGaze")
-data_arg.add_argument('--synthetic_image_dir', type=str, default="UnityEyes")
+# data_arg.add_argument('--real_image_dir', type=str, default="MPIIGaze")
+data_arg.add_argument('--real_image_dir', type=str, default="real_hand_images")
+# data_arg.add_argument('--synthetic_image_dir', type=str, default="UnityEyes")
+data_arg.add_argument('--synthetic_image_dir', type=str, default="synthetic_images")
+
 
 # Training / test parameters
 train_arg = add_argument_group('Training')
