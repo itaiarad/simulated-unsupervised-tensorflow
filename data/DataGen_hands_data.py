@@ -45,7 +45,14 @@ def maybe_preprocess(config, data_path, sample_path=None):
     real_images = []
     for img in tqdm(real_images_paths):
       img_path = os.path.join(real_imgs_dir, img)
-      real_images.append(cv2.imread(img_path))
+      img_data = cv2.imread(img_path)
+      if config.input_channel == 1:
+        img_data = cv2.cvtColor(img_data, cv2.COLOR_BGR2GRAY)
+      else:
+        img_data = cv2.cvtColor(img_data, cv2.COLOR_BGR2RGB)
+      img_data = cv2.resize(img_data, (640, 480))  # resize and normalize values
+      real_images.append(img_data)
+
     print("\n[*] Finished preprocessing real `DG hands` data.")
 
     real_data = np.stack(real_images, axis=0)
@@ -58,6 +65,7 @@ def maybe_preprocess(config, data_path, sample_path=None):
       img_path = os.path.join(synthetic_img_dir, img)
       new_img_path = os.path.join(synthetic_grayscale_path, img.replace('.png', '_grayscale.png'))
       img_data = cv2.imread(img_path)
+      img_data = cv2.resize(img_data, (640, 480))
       save_array_to_grayscale_image(img_data, new_img_path)
     print("\n[*] Finished preprocessing synthetic `DG hands` data.")
 

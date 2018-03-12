@@ -32,9 +32,9 @@ class Trainer(object):
     self.initial_K_g = config.initial_K_g
     self.checkpoint_secs = config.checkpoint_secs
 
-    # config.data_set = 'hands'
-    # DataLoader = { 'hands': hands.DataLoader}[config.data_set]
-    DataLoader = {'gaze': gaze_data.DataLoader}[config.data_set]  #  DELETE LATER
+    config.data_set = 'hands'
+    DataLoader = { 'hands': hands.DataLoader}[config.data_set]
+    # DataLoader = {'gaze': gaze_data.DataLoader}[config.data_set]  #  DELETE LATER
     self.data_loader = DataLoader(config, rng=self.rng)
 
     self.model = Model(config, self.data_loader)
@@ -85,9 +85,6 @@ class Trainer(object):
         [imread(path) for path in \
             self.data_loader.synthetic_data_paths[idxs]]
     ), -1)
-
-    tmp = self.data_loader.next()
-    cv2.imshow(tmp[0])
 
     def train_refiner(push_buffer=False):
       feed_dict = {
